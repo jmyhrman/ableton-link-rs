@@ -1,15 +1,15 @@
-use cmake::Config;
 use bindgen::builder;
+use cmake::Config;
 
 #[cfg(target_os = "macos")]
 fn link_cpp() {
     // IMPORTANT!!! otherwise linker errors, apparently only on macOS
-    println!("cargo:rustc-link-lib=c++");  
+    println!("cargo:rustc-link-lib=c++");
 }
 
 #[cfg(not(target_os = "macos"))]
 fn link_cpp() {
-    println!("cargo:rustc-link-lib=stdc++");  
+    println!("cargo:rustc-link-lib=stdc++");
 }
 
 fn main() {

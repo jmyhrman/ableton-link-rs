@@ -14,8 +14,8 @@ mod sys {
     include!(concat!(env!("OUT_DIR"), "/link_rs.rs"));
 }
 
-use sys::*;
 use std::os::raw::c_void;
+use sys::*;
 
 /// # Represents a participant in a Link session.
 ///
@@ -68,7 +68,9 @@ impl Drop for Link {
 impl Link {
     /// Construct with an initial tempo.
     pub fn new(bpm: f64) -> Link {
-        Link { wlink: unsafe { Link_create(bpm) } }
+        Link {
+            wlink: unsafe { Link_create(bpm) },
+        }
     }
 
     /// Is Link currently enabled?
@@ -102,7 +104,7 @@ impl Link {
     /// How many peers are currently connected in a Link session?
     /// * Thread-safe: yes
     /// * Realtime-safe: yes
-    pub fn num_peers(&self) -> usize {
+    pub fn num_peers(&self) -> size_t {
         unsafe { Link_numPeers(self.wlink) }
     }
 
@@ -112,9 +114,9 @@ impl Link {
     /// * Realtime-safe: no
     ///
     /// The callback is invoked on a Link-managed thread.
-    pub fn set_num_peers_callback(&mut self, callback: extern fn(usize)) {
+    pub fn set_num_peers_callback(&mut self, callback: extern "C" fn(size_t)) {
         unsafe {
-            let cb = callback as unsafe extern fn(usize);
+            let cb = callback as unsafe extern "C" fn(size_t);
             Link_setNumPeersCallback(self.wlink, Some(cb));
         }
     }
@@ -124,9 +126,9 @@ impl Link {
     /// * Realtime-safe: no
     ///
     /// The callback is invoked on a Link-managed thread.
-    pub fn set_tempo_callback(&mut self, callback: extern fn(f64)) {
+    pub fn set_tempo_callback(&mut self, callback: extern "C" fn(f64)) {
         unsafe {
-            let cb = callback as unsafe extern fn(f64);
+            let cb = callback as unsafe extern "C" fn(f64);
             Link_setTempoCallback(self.wlink, Some(cb));
         }
     }
@@ -137,9 +139,9 @@ impl Link {
     /// * Realtime-safe: no
     ///
     /// The callback is invoked on a Link-managed thread.
-    pub fn set_start_stop_callback(&mut self, callback: extern fn(bool)) {
+    pub fn set_start_stop_callback(&mut self, callback: extern "C" fn(bool)) {
         unsafe {
-            let cb = callback as unsafe extern fn(bool);
+            let cb = callback as unsafe extern "C" fn(bool);
             Link_setStartStopCallback(self.wlink, Some(cb));
         }
     }
@@ -156,7 +158,9 @@ impl Link {
     /// functions `ticksToMicros()` and `microsToTicks()` to faciliate
     /// converting between these units.
     pub fn clock(&self) -> Clock {
-        Clock { wc: unsafe { Link_clock(self.wlink) } }
+        Clock {
+            wc: unsafe { Link_clock(self.wlink) },
+        }
     }
 
     // Capture the current Link Session State from the audio thread.
@@ -184,20 +188,29 @@ impl Link {
     /// Session State for later use in a different context is not advised
     /// because it will provide an outdated view.
     pub fn with_audio_session_state<F>(&self, f: F)
-        where F: FnMut(SessionState)
+    where
+        F: FnMut(SessionState),
     {
         let user_data = &f as *const _ as *mut c_void;
         unsafe {
             Link_withAudioSessionState(self.wlink, Some(closure_wrapper::<F>), user_data);
         }
 
-        extern fn closure_wrapper<F>(closure: *mut c_void, wss: *mut WSessionState, link: *mut WLink)
-            where F: FnMut(SessionState)
+        extern "C" fn closure_wrapper<F>(
+            closure: *mut c_void,
+            wss: *mut WSessionState,
+            link: *mut WLink,
+        ) where
+            F: FnMut(SessionState),
         {
             let opt_closure = closure as *mut Option<F>;
             unsafe {
                 let mut fnx = (*opt_closure).take().unwrap();
-                let ss = SessionState { wss, link , audio_session_state: true };
+                let ss = SessionState {
+                    wss,
+                    link,
+                    audio_session_state: true,
+                };
                 fnx(ss);
             }
         }
@@ -241,20 +254,29 @@ impl Link {
     /// Storing it for later use in a different context is not
     /// advised because it will provide an outdated view.
     pub fn with_app_session_state<F>(&self, f: F)
-        where F: FnMut(SessionState)
+    where
+        F: FnMut(SessionState),
     {
         let user_data = &f as *const _ as *mut c_void;
         unsafe {
             Link_withAppSessionState(self.wlink, Some(closure_wrapper::<F>), user_data);
         }
 
-        extern fn closure_wrapper<F>(closure: *mut c_void, wss: *mut WSessionState, link: *mut WLink)
-            where F: FnMut(SessionState)
+        extern "C" fn closure_wrapper<F>(
+            closure: *mut c_void,
+            wss: *mut WSessionState,
+            link: *mut WLink,
+        ) where
+            F: FnMut(SessionState),
         {
             let opt_closure = closure as *mut Option<F>;
             unsafe {
                 let mut fnx = (*opt_closure).take().unwrap();
-                let ss = SessionState { wss, link, audio_session_state: false };
+                let ss = SessionState {
+                    wss,
+                    link,
+                    audio_session_state: false,
+                };
                 fnx(ss);
             }
         }
@@ -440,11 +462,16 @@ impl SessionState {
 
     /// Convenience function to start or stop transport at a given time and
     /// attempt to map the given beat to this time in context of the given quantum.
-    pub fn set_is_playing_and_request_beat_at_time(&mut self,
-        is_playing: bool, time: i64, beat: f64, quantum: f64) {
-
-        unsafe { SessionState_setIsPlayingAndRequestBeatAtTime(self.wss,
-            is_playing, time, beat, quantum) }
+    pub fn set_is_playing_and_request_beat_at_time(
+        &mut self,
+        is_playing: bool,
+        time: i64,
+        beat: f64,
+        quantum: f64,
+    ) {
+        unsafe {
+            SessionState_setIsPlayingAndRequestBeatAtTime(self.wss, is_playing, time, beat, quantum)
+        }
     }
 }
 
@@ -452,7 +479,7 @@ pub struct Clock {
     wc: *mut WClock,
 }
 
-impl Drop for Clock{
+impl Drop for Clock {
     fn drop(&mut self) {
         unsafe { Clock_destroy(self.wc) }
     }
