@@ -7,6 +7,7 @@ fn link_cpp() {
     println!("cargo:rustc-link-lib=c++");
 }
 
+#[cfg(not(target_os = "windows"))]
 #[cfg(not(target_os = "macos"))]
 fn link_cpp() {
     println!("cargo:rustc-link-lib=stdc++");
@@ -33,6 +34,8 @@ fn main() {
 
     println!("cargo:rustc-link-search=native={}", builddir.display());
     println!("cargo:rustc-link-lib=static=linkrs");
+
+    #[cfg(not(target_os = "windows"))]
     link_cpp();
 
     // bindgen
