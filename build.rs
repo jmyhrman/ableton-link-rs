@@ -17,11 +17,20 @@ fn main() {
     // Builds the project in the directory located in `libfoo`, installing it
     // into $OUT_DIR
     let dst = Config::new("c-wrapper")
-                // .cxxflag("-fno-rtti")
-                // .no_build_target(true)
-                .build_target("linkrs")
-                .build();
+        // .cxxflag("-fno-rtti")
+        // .no_build_target(true)
+        .build_target("linkrs")
+        .build();
+
+    #[cfg(target_os = "windows")]
+    // Visual Studio output to OUT_DIR/{Debug, Release, RelWithDebInfo} etc.
+    let builddir = dst
+        .join("build")
+        .join(Config::new("c-wrapper").get_profile());
+    #[cfg(not(target_os = "windows"))]
+    // Other generators just output directly to OUT_DIR
     let builddir = dst.join("build");
+
     println!("cargo:rustc-link-search=native={}", builddir.display());
     println!("cargo:rustc-link-lib=static=linkrs");
     link_cpp();
