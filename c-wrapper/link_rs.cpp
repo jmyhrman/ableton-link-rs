@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include <ableton/Link.hpp>
 
 #include "link_rs.h"
