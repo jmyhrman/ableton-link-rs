@@ -14,6 +14,7 @@ fn main() {
     let mut link = Link::new(120.0);
     let clock = link.clock();
     link.enable(true);
+    link.enable_start_stop_sync(true);
 
     ctrlc::set_handler(move || {
         r.store(false, Ordering::SeqCst);
