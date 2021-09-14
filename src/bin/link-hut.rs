@@ -1,16 +1,27 @@
-extern crate ableton_link;
-
-use ableton_link::Link;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::thread::sleep;
 use std::time::Duration;
 
+extern crate ableton_link;
+use ableton_link::Link;
+
 fn main() {
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+
     let quantum = 4.0;
     let mut link = Link::new(120.0);
     let clock = link.clock();
     link.enable(true);
-    loop {
-        link.with_app_session_state(|mut session_state| {
+
+    ctrlc::set_handler(move || {
+        r.store(false, Ordering::SeqCst);
+    })
+    .expect("Error setting Ctrl-C handler");
+
+    while running.load(Ordering::SeqCst) {
+        link.with_app_session_state(|session_state| {
             let time = clock.micros();
             let tempo = session_state.tempo();
             let playing = session_state.is_playing();
@@ -20,8 +31,10 @@ fn main() {
                 playing, quantum, time, tempo, beat
             );
             sleep(Duration::from_millis(100));
-            //session_state.set_tempo(122.0, 0);
-            //session_state.commit();
         });
     }
+
+    println!("Leaving Link session");
+
+    link.enable(false);
 }
