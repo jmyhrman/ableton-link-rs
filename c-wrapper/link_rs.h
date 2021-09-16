@@ -33,7 +33,8 @@ WClock* Link_clock(WLink* lp);
 void Link_withAudioSessionState(WLink* lp, RustClosurePtr cp, void* closure_data);
 void Link_commitAudioSessionState(WLink* lp, WSessionState* ssp);
 
-// WSessionState* Link_captureAppSessionState(WLink* lp);
+WSessionState* Link_captureAudioSessionState(WLink *lp);
+WSessionState* Link_captureAppSessionState(WLink* lp);
 
 void Link_withAppSessionState(WLink* lp, RustClosurePtr cp, void* closure_data);
 void Link_commitAppSessionState(WLink* lp, WSessionState* ssp);

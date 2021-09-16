@@ -22,7 +22,7 @@ fn main() {
     .expect("Error setting Ctrl-C handler");
 
     while running.load(Ordering::SeqCst) {
-        link.with_app_session_state(|session_state| {
+        /*link.with_audio_session_state(|session_state| {
             let time = clock.micros();
             let tempo = session_state.tempo();
             let playing = session_state.is_playing();
@@ -32,7 +32,19 @@ fn main() {
                 playing, quantum, time, tempo, beat
             );
             sleep(Duration::from_millis(100));
-        });
+        });*/
+
+        let session_state = link.capture_audio_session_state();
+        let time = clock.micros();
+        let tempo = session_state.tempo();
+        let playing = session_state.is_playing();
+        let beat = session_state.beat_at_time(time, quantum);
+        println!(
+            "playing={}, quantum={}, clock={}, tempo={}, beat={}",
+            playing, quantum, time, tempo, beat
+        );
+
+        sleep(Duration::from_millis(100));
     }
 
     println!("Leaving Link session");

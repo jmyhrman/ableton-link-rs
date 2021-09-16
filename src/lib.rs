@@ -173,9 +173,14 @@ impl Link {
     // should be captured and used in a local scope. Storing the
     // Session State for later use in a different context is not advised
     // because it will provide an outdated view.
-    // fn capture_audio_session_state(&self) -> SessionState {
-    //     unimplemented!()
-    // }
+    pub fn capture_audio_session_state(&self) -> SessionState {
+        let wss = unsafe { Link_captureAudioSessionState(self.wlink) };
+        SessionState {
+            link: self.wlink,
+            wss,
+            audio_session_state: true,
+        }
+    }
 
     /// Capture the current Link Session State from the audio thread.
     /// * Thread-safe: no
@@ -238,10 +243,14 @@ impl Link {
     // state, so it should be captured and used in a local scope.
     // Storing the it for later use in a different context is not
     // advised because it will provide an outdated view.
-    // pub fn capture_app_session_state(&self) -> SessionState {
-    //     let wss = unsafe { Link_captureAppSessionState(self.wlink) };
-    //     SessionState { wss }
-    // }
+    pub fn capture_app_session_state(&self) -> SessionState {
+        let wss = unsafe { Link_captureAppSessionState(self.wlink) };
+        SessionState {
+            link: self.wlink,
+            wss,
+            audio_session_state: false,
+        }
+    }
 
     /// Capture the current Link Session State from an application thread.
     /// * Thread-safe: yes

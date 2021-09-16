@@ -49,6 +49,12 @@ WClock* Link_clock(WLink* lp) {
     return reinterpret_cast<WClock*>(cp);
 }
 
+WSessionState* Link_captureAudioSessionState(WLink* lp) {
+    auto sss = reinterpret_cast<ableton::Link*>(lp)->captureAudioSessionState();
+    auto ssh = new ableton::Link::SessionState(sss);
+    return reinterpret_cast<WSessionState*>(ssh);
+}
+
 void Link_withAudioSessionState(WLink* lp, RustClosurePtr cp, void* closure_data) {
     auto ss = reinterpret_cast<ableton::Link*>(lp)->captureAudioSessionState();
     cp(closure_data, reinterpret_cast<WSessionState*>(&ss), lp);
