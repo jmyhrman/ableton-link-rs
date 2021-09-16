@@ -13,7 +13,7 @@ categories = ["api-bindings"]
 [badges]
 travis-ci = { repository = "magdaddy/ableton-link-rs", branch = "master" }
 
-[dependencies]
+[dev-dependencies]
 ctrlc = "3.2"
 
 [build-dependencies]
