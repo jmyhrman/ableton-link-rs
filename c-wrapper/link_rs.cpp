@@ -1,4 +1,5 @@
 #include <ableton/Link.hpp>
+#include <ableton/link/HostTimeFilter.hpp>
 
 #include "link_rs.h"
 
@@ -168,4 +169,22 @@ uint64_t Clock_ticks(WClock* cp) {
 
 int64_t Clock_micros(WClock* cp) {
     return reinterpret_cast<ableton::Link::Clock*>(cp)->micros().count();
+}
+
+// HostTimeFilter
+
+WHostTimeFilter* HostTimeFilter_create() {
+    return reinterpret_cast<WHostTimeFilter*>(new ableton::link::HostTimeFilter<ableton::link::platform::Clock>());
+}
+
+void HostTimeFilter_destroy(WHostTimeFilter* hsfp) {
+    delete reinterpret_cast<ableton::link::HostTimeFilter<ableton::link::platform::Clock>*>(hsfp);
+}
+
+void HostTimeFilter_reset(WHostTimeFilter* hsfp) {
+    reinterpret_cast<ableton::link::HostTimeFilter<ableton::link::platform::Clock>*>(hsfp)->reset();
+}
+
+int64_t HostTimeFilter_sampleTimeToHostTime(WHostTimeFilter* hsfp, const double sampleTime) {
+    return reinterpret_cast<ableton::link::HostTimeFilter<ableton::link::platform::Clock>*>(hsfp)->sampleTimeToHostTime(sampleTime).count();
 }

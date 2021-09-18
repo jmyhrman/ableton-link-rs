@@ -44,6 +44,7 @@ fn main() {
         .allowlist_function("Link_.*")
         .allowlist_function("SessionState_.*")
         .allowlist_function("Clock_.*")
+        .allowlist_function("HostTimeFilter_.*")
         .generate()
         .expect("generate bindings");
     let outfile = dst.join("link_rs.rs");

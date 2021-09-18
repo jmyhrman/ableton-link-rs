@@ -10,6 +10,7 @@ typedef struct WLink WLink;
 typedef struct WSessionState WSessionState;
 typedef struct WClock WClock;
 typedef void (*RustClosurePtr)(void*, WSessionState*, WLink*);
+typedef struct WHostTimeFilter WHostTimeFilter;
 
 // Link
 
@@ -71,6 +72,12 @@ uint64_t Clock_ticks(WClock* cp);
 
 int64_t Clock_micros(WClock* cp);
 
+// HostTimeFilter
+
+WHostTimeFilter* HostTimeFilter_create();
+void HostTimeFilter_destroy(WHostTimeFilter* hsfp);
+void HostTimeFilter_reset(WHostTimeFilter* hsfp);
+int64_t HostTimeFilter_sampleTimeToHostTime(WHostTimeFilter* hsfp, const double sampleTime);
 
 #ifdef __cplusplus
 }

@@ -506,6 +506,35 @@ impl Clock {
     }
 }
 
+unsafe impl Send for HostTimeFilter {}
+unsafe impl Sync for HostTimeFilter {}
+
+pub struct HostTimeFilter {
+    whtf: *mut WHostTimeFilter,
+}
+
+impl Drop for HostTimeFilter {
+    fn drop(&mut self) {
+        unsafe { HostTimeFilter_destroy(self.whtf) }
+    }
+}
+
+impl HostTimeFilter {
+    pub fn new() -> Self {
+        Self {
+            whtf: unsafe { HostTimeFilter_create() },
+        }
+    }
+
+    pub fn reset(&self) {
+        unsafe { HostTimeFilter_reset(self.whtf) }
+    }
+
+    pub fn sample_time_to_host_time(&self, sample_time: f64) -> i64 {
+        unsafe { HostTimeFilter_sampleTimeToHostTime(self.whtf, sample_time) }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
